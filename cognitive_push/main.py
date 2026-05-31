@@ -6,7 +6,7 @@ from time import sleep
 from typing import Callable, Sequence
 
 from cognitive_push.config import load_app_config, load_config, load_generation_config
-from cognitive_push.delivery import send_flomo, send_pushplus
+from cognitive_push.delivery import send_pushplus
 from cognitive_push.generator import generate_card
 from cognitive_push.quality import extract_tag_line, extract_title, validate_card
 from cognitive_push.state import DailyRecord, StateStore
@@ -44,18 +44,15 @@ def run_once(today: date | None = None, enforce_send_hour: bool = False, now: da
     current_day_text = current_day.isoformat()
     existing_record = store.latest_record_for_date(current_day_text)
     existing_pushplus_sent = bool(existing_record and existing_record.get("pushplus_sent", existing_record.get("wecom_sent", False)))
-    if existing_record and existing_pushplus_sent is True and existing_record.get("flomo_sent") is True:
+    if existing_record and existing_pushplus_sent is True:
         return
 
     if existing_record and existing_record.get("content"):
         card = str(existing_record["content"])
         pushplus_sent = bool(existing_record.get("pushplus_sent", existing_record.get("wecom_sent", False)))
-        flomo_sent = bool(existing_record.get("flomo_sent"))
 
         if not pushplus_sent:
             pushplus_sent = _retry(lambda: send_pushplus(config.pushplus_token, card), attempts=3)
-        if not flomo_sent:
-            flomo_sent = _retry(lambda: send_flomo(config.flomo_webhook_url, card), attempts=3)
 
         store.add_record(
             DailyRecord(
@@ -64,11 +61,10 @@ def run_once(today: date | None = None, enforce_send_hour: bool = False, now: da
                 theme=str(existing_record.get("theme") or extract_tag_line(card)),
                 content=card,
                 pushplus_sent=pushplus_sent,
-                flomo_sent=flomo_sent,
             )
         )
-        if not pushplus_sent and not flomo_sent:
-            raise RuntimeError("pushplus 和 flomo 均发送失败，内容已记录到本地状态")
+        if not pushplus_sent:
+            raise RuntimeError("pushplus 发送失败，内容已记录到本地状态")
         return
 
     card = generate_card(config, theme, store.recent_titles())
@@ -80,7 +76,6 @@ def run_once(today: date | None = None, enforce_send_hour: bool = False, now: da
         raise RuntimeError("内容质量检查失败: " + "; ".join(quality.errors))
 
     pushplus_sent = _retry(lambda: send_pushplus(config.pushplus_token, card), attempts=3)
-    flomo_sent = _retry(lambda: send_flomo(config.flomo_webhook_url, card), attempts=3)
 
     store.add_record(
         DailyRecord(
@@ -89,12 +84,11 @@ def run_once(today: date | None = None, enforce_send_hour: bool = False, now: da
             theme=extract_tag_line(card),
             content=card,
             pushplus_sent=pushplus_sent,
-            flomo_sent=flomo_sent,
         )
     )
 
-    if not pushplus_sent and not flomo_sent:
-        raise RuntimeError("pushplus 和 flomo 均发送失败，内容已记录到本地状态")
+    if not pushplus_sent:
+        raise RuntimeError("pushplus 发送失败，内容已记录到本地状态")
 
 
 def _build_app_service():
@@ -143,7 +137,7 @@ def run_ios_notification_once(today: date | None = None) -> None:
 
 
 def main(argv: Sequence[str] | None = None) -> None:
-    parser = argparse.ArgumentParser(description="Send one daily cognitive card to pushplus and flomo.")
+    parser = argparse.ArgumentParser(description="Send one daily cognitive card to pushplus.")
     parser.add_argument("--force", action="store_true", help="Run immediately, ignoring the configured send hour.")
     parser.add_argument("--serve-api", action="store_true", help="Run the iOS app HTTP API server.")
     parser.add_argument("--send-ios-notification", action="store_true", help="Generate today's card and send APNs notifications.")

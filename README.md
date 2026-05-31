@@ -25,11 +25,10 @@ APNS_ENVIRONMENT=sandbox
 
 推荐配置 `APNS_PRIVATE_KEY_PATH`，后端会用 `.p8` 私钥生成 APNs provider token。部署环境需要安装 Python `cryptography` 包。`APNS_AUTH_TOKEN` 只适合临时调试时手动传入已生成的 provider token。
 
-pushplus 和 flomo 仍可作为每日提醒与归档通道：
+pushplus 作为每日微信提醒通道：
 
 ```text
 PUSHPLUS_TOKEN=pushplus token
-FLOMO_WEBHOOK_URL=flomo webhook
 COGNITIVE_PUSH_STATE=data/state.json
 COGNITIVE_PUSH_SEND_HOUR=8
 ```
@@ -89,7 +88,6 @@ python -m unittest discover -v
 DEEPSEEK_API_KEY
 DEEPSEEK_MODEL
 PUSHPLUS_TOKEN
-FLOMO_WEBHOOK_URL
 ```
 
 推荐值：

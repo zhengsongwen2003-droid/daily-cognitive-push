@@ -31,7 +31,6 @@ class GeneratorTests(TestCase):
             deepseek_api_key="key",
             deepseek_model="deepseek-chat",
             pushplus_token="https://pushplus-token",
-            flomo_webhook_url="https://flomo.example",
             state_path="state.json",
             send_hour=8,
         )
@@ -48,7 +47,6 @@ class GeneratorTests(TestCase):
             deepseek_api_key="key",
             deepseek_model="deepseek-chat",
             pushplus_token="pushplus-token",
-            flomo_webhook_url="https://flomo.example",
             state_path="state.json",
             send_hour=8,
         )

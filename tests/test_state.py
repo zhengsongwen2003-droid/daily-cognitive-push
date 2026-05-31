@@ -28,7 +28,6 @@ class StateStoreTests(TestCase):
                         theme=f"theme-{index}",
                         content=f"content-{index}",
                         pushplus_sent=True,
-                        flomo_sent=True,
                     )
                 )
 
@@ -50,7 +49,6 @@ class StateStoreTests(TestCase):
                     theme="#每日认知/认知偏差",
                     content="full card",
                     pushplus_sent=True,
-                    flomo_sent=True,
                 )
             )
 
@@ -69,8 +67,7 @@ class StateStoreTests(TestCase):
                     title="old",
                     theme="#每日认知/认知偏差",
                     content="old card",
-                    pushplus_sent=True,
-                    flomo_sent=False,
+                    pushplus_sent=False,
                 )
             )
             store.add_record(
@@ -80,7 +77,6 @@ class StateStoreTests(TestCase):
                     theme="#每日认知/认知偏差",
                     content="new card",
                     pushplus_sent=True,
-                    flomo_sent=True,
                 )
             )
 

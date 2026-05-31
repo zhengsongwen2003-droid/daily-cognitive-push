@@ -9,7 +9,6 @@ class Config:
     deepseek_api_key: str
     deepseek_model: str
     pushplus_token: str
-    flomo_webhook_url: str
     state_path: str
     send_hour: int
 
@@ -43,7 +42,6 @@ def load_config() -> Config:
         deepseek_api_key=_required_env("DEEPSEEK_API_KEY"),
         deepseek_model=os.environ.get("DEEPSEEK_MODEL", "deepseek-chat").strip() or "deepseek-chat",
         pushplus_token=_required_env("PUSHPLUS_TOKEN"),
-        flomo_webhook_url=_required_env("FLOMO_WEBHOOK_URL"),
         state_path=os.environ.get("COGNITIVE_PUSH_STATE", "data/state.json").strip() or "data/state.json",
         send_hour=send_hour,
     )
@@ -76,7 +74,6 @@ def load_generation_config() -> Config:
         deepseek_api_key=_required_env("DEEPSEEK_API_KEY"),
         deepseek_model=os.environ.get("DEEPSEEK_MODEL", "deepseek-chat").strip() or "deepseek-chat",
         pushplus_token=os.environ.get("PUSHPLUS_TOKEN", "").strip(),
-        flomo_webhook_url=os.environ.get("FLOMO_WEBHOOK_URL", "").strip(),
         state_path=os.environ.get("COGNITIVE_PUSH_STATE", "data/state.json").strip() or "data/state.json",
         send_hour=send_hour,
     )

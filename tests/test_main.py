@@ -66,18 +66,16 @@ class MainTests(TestCase):
                 "DEEPSEEK_API_KEY": "key",
                 "DEEPSEEK_MODEL": "model",
                 "PUSHPLUS_TOKEN": "https://pushplus-token",
-                "FLOMO_WEBHOOK_URL": "https://flomo.example",
                 "COGNITIVE_PUSH_STATE": state_path,
             }
-            sent = {"pushplus": 0, "flomo": 0}
+            sent = {"pushplus": 0}
 
             with patch.dict(os.environ, env, clear=True):
                 with patch("cognitive_push.main.generate_card", return_value=VALID_CARD):
                     with patch("cognitive_push.main.send_pushplus", side_effect=lambda url, content: sent.__setitem__("pushplus", sent["pushplus"] + 1)):
-                        with patch("cognitive_push.main.send_flomo", side_effect=lambda url, content: sent.__setitem__("flomo", sent["flomo"] + 1)):
-                            run_once(date(2026, 6, 1))
+                        run_once(date(2026, 6, 1))
 
-            self.assertEqual(sent, {"pushplus": 1, "flomo": 1})
+            self.assertEqual(sent, {"pushplus": 1})
             self.assertTrue(Path(state_path).exists())
 
     def test_run_once_skips_when_date_already_succeeded(self):
@@ -91,14 +89,12 @@ class MainTests(TestCase):
                     theme="#每日认知/认知偏差",
                     content=VALID_CARD,
                     pushplus_sent=True,
-                    flomo_sent=True,
                 )
             )
             env = {
                 "DEEPSEEK_API_KEY": "key",
                 "DEEPSEEK_MODEL": "model",
                 "PUSHPLUS_TOKEN": "https://pushplus-token",
-                "FLOMO_WEBHOOK_URL": "https://flomo.example",
                 "COGNITIVE_PUSH_STATE": state_path,
             }
 
@@ -108,7 +104,7 @@ class MainTests(TestCase):
 
             generate_card.assert_not_called()
 
-    def test_run_once_reuses_existing_content_and_only_retries_failed_flomo(self):
+    def test_run_once_reuses_existing_content_and_only_retries_failed_pushplus(self):
         with tempfile.TemporaryDirectory() as directory:
             state_path = str(Path(directory) / "state.json")
             store = StateStore(state_path)
@@ -118,37 +114,31 @@ class MainTests(TestCase):
                     title="existing",
                     theme="#每日认知/认知偏差",
                     content=VALID_CARD,
-                    pushplus_sent=True,
-                    flomo_sent=False,
+                    pushplus_sent=False,
                 )
             )
             env = {
                 "DEEPSEEK_API_KEY": "key",
                 "DEEPSEEK_MODEL": "model",
                 "PUSHPLUS_TOKEN": "https://pushplus-token",
-                "FLOMO_WEBHOOK_URL": "https://flomo.example",
                 "COGNITIVE_PUSH_STATE": state_path,
             }
 
             with patch.dict(os.environ, env, clear=True):
                 with patch("cognitive_push.main.generate_card") as generate_card:
                     with patch("cognitive_push.main.send_pushplus") as send_pushplus:
-                        with patch("cognitive_push.main.send_flomo") as send_flomo:
-                            run_once(date(2026, 6, 1))
+                        run_once(date(2026, 6, 1))
 
             generate_card.assert_not_called()
-            send_pushplus.assert_not_called()
-            send_flomo.assert_called_once()
+            send_pushplus.assert_called_once()
             data = StateStore(state_path).load()
             self.assertTrue(data["records"][-1]["pushplus_sent"])
-            self.assertTrue(data["records"][-1]["flomo_sent"])
 
     def test_run_once_respects_configured_send_hour(self):
         env = {
             "DEEPSEEK_API_KEY": "key",
             "DEEPSEEK_MODEL": "model",
             "PUSHPLUS_TOKEN": "https://pushplus-token",
-            "FLOMO_WEBHOOK_URL": "https://flomo.example",
             "COGNITIVE_PUSH_SEND_HOUR": "9",
         }
 
@@ -159,27 +149,24 @@ class MainTests(TestCase):
 
         generate_card.assert_not_called()
 
-    def test_run_once_records_full_content_when_both_sends_fail(self):
+    def test_run_once_records_full_content_when_pushplus_send_fails(self):
         with tempfile.TemporaryDirectory() as directory:
             state_path = str(Path(directory) / "state.json")
             env = {
                 "DEEPSEEK_API_KEY": "key",
                 "DEEPSEEK_MODEL": "model",
                 "PUSHPLUS_TOKEN": "https://pushplus-token",
-                "FLOMO_WEBHOOK_URL": "https://flomo.example",
                 "COGNITIVE_PUSH_STATE": state_path,
             }
 
             with patch.dict(os.environ, env, clear=True):
                 with patch("cognitive_push.main.generate_card", return_value=VALID_CARD):
                     with patch("cognitive_push.main.send_pushplus", side_effect=RuntimeError("pushplus failed")):
-                        with patch("cognitive_push.main.send_flomo", side_effect=RuntimeError("flomo failed")):
-                            with patch("cognitive_push.main.sleep"):
-                                with patch("builtins.print"):
-                                    with self.assertRaises(RuntimeError):
-                                        run_once(date(2026, 6, 1))
+                        with patch("cognitive_push.main.sleep"):
+                            with patch("builtins.print"):
+                                with self.assertRaises(RuntimeError):
+                                    run_once(date(2026, 6, 1))
 
             data = StateStore(state_path).load()
             self.assertEqual(data["records"][0]["content"], VALID_CARD)
             self.assertFalse(data["records"][0]["pushplus_sent"])
-            self.assertFalse(data["records"][0]["flomo_sent"])

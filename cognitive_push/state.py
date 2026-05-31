@@ -13,7 +13,6 @@ class DailyRecord:
     theme: str
     content: str
     pushplus_sent: bool
-    flomo_sent: bool
 
 
 class StateStore:
@@ -47,7 +46,6 @@ class StateStore:
         return any(
             item.get("date") == date_value
             and item.get("pushplus_sent", item.get("wecom_sent")) is True
-            and item.get("flomo_sent") is True
             for item in self.load().get("records", [])
         )
 
