@@ -1,0 +1,31 @@
+name: Daily Cognitive Push
+
+on:
+  schedule:
+    # 08:00 Asia/Shanghai, because GitHub Actions cron uses UTC.
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Send daily cognitive card
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          DEEPSEEK_MODEL: ${{ secrets.DEEPSEEK_MODEL }}
+          PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
+          FLOMO_WEBHOOK_URL: ${{ secrets.FLOMO_WEBHOOK_URL }}
+          COGNITIVE_PUSH_SEND_HOUR: "8"
+          COGNITIVE_PUSH_STATE: data/state.json
+        run: python -m cognitive_push.main --force

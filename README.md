@@ -78,3 +78,22 @@ ios/DailyCognitionApp/Sources/DailyCognitionApp
 ```powershell
 python -m unittest discover -v
 ```
+
+## GitHub Actions 免费定时运行
+
+项目已经包含 `.github/workflows/daily-cognitive.yml`。上传到 GitHub 后，它会在每天北京时间 08:00 自动运行，也可以在 GitHub App 或网页里手动点 Run workflow。
+
+在仓库的 Settings -> Secrets and variables -> Actions 里添加这些 Secrets：
+
+```text
+DEEPSEEK_API_KEY
+DEEPSEEK_MODEL
+PUSHPLUS_TOKEN
+FLOMO_WEBHOOK_URL
+```
+
+推荐值：
+
+```text
+DEEPSEEK_MODEL=deepseek-chat
+```
