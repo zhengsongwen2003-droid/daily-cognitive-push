@@ -6,7 +6,7 @@
 
 **Architecture:** 使用一个轻量 Python 命令行应用。配置从环境变量读取，状态写入本地 JSON 文件，主流程按“选择主题 -> 生成内容 -> 校验内容 -> 发送pushplus -> 保存 flomo -> 记录状态”执行。
 
-**Tech Stack:** Python 3.11+、标准库 `urllib.request`、标准库 `json`、标准库 `unittest`、OpenAI Responses API、Windows 任务计划程序或等价 cron。
+**Tech Stack:** Python 3.11+、标准库 `urllib.request`、标准库 `json`、标准库 `unittest`、DeepSeek Chat Completions API、Windows 任务计划程序或等价 cron。
 
 ---
 
@@ -21,7 +21,7 @@
 - Create: `cognitive_push/themes.py`  
   按星期选择每日主题。
 - Create: `cognitive_push/generator.py`  
-  调用 OpenAI Responses API 生成认知卡片。
+  调用 DeepSeek Chat Completions API 生成认知卡片。
 - Create: `cognitive_push/quality.py`  
   检查 7 段结构、长度、标题重复度和关键字段。
 - Create: `cognitive_push/delivery.py`  
@@ -41,7 +41,7 @@
 
 ## 参考资料
 
-- OpenAI Responses API：官方文档说明 Responses 是新项目推荐接口，并支持文本生成。
+- DeepSeek Chat Completions API：官方文档说明 Responses 是新项目推荐接口，并支持文本生成。
 - pushplus：使用机器人 webhook 接收 JSON 文本消息。
 - flomo：使用已获取的 flomo API 或 incoming webhook 地址保存内容。
 
@@ -84,8 +84,8 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class Config:
-    openai_api_key: str
-    openai_model: str
+    deepseek_api_key: str
+    deepseek_model: str
     pushplus_token: str
     flomo_webhook_url: str
     state_path: str
@@ -105,8 +105,8 @@ def load_config() -> Config:
         raise RuntimeError("COGNITIVE_PUSH_SEND_HOUR must be between 0 and 23")
 
     return Config(
-        openai_api_key=_required_env("OPENAI_API_KEY"),
-        openai_model=os.environ.get("OPENAI_MODEL", "gpt-5").strip() or "gpt-5",
+        deepseek_api_key=_required_env("DEEPSEEK_API_KEY"),
+        deepseek_model=os.environ.get("DEEPSEEK_MODEL", "deepseek-chat").strip() or "deepseek-chat",
         pushplus_token=_required_env("PUSHPLUS_TOKEN"),
         flomo_webhook_url=_required_env("FLOMO_WEBHOOK_URL"),
         state_path=os.environ.get("COGNITIVE_PUSH_STATE", "data/state.json").strip() or "data/state.json",
@@ -119,8 +119,8 @@ def load_config() -> Config:
 Create `.env.example`:
 
 ```text
-OPENAI_API_KEY=your-openai-api-key
-OPENAI_MODEL=gpt-5
+DEEPSEEK_API_KEY=your-deepseek-api-key
+DEEPSEEK_MODEL=deepseek-chat
 PUSHPLUS_TOKEN=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=your-key
 FLOMO_WEBHOOK_URL=https://flomoapp.com/iwh/your-token
 COGNITIVE_PUSH_STATE=data/state.json
@@ -460,7 +460,7 @@ python -m unittest tests.test_quality -v
 
 Expected: PASS。
 
-## Task 5: OpenAI 内容生成
+## Task 5: DeepSeek 内容生成
 
 **Files:**
 - Create: `cognitive_push/generator.py`
@@ -515,14 +515,14 @@ def build_prompt(theme: Theme, recent_titles: set[str]) -> str:
 
 def generate_card(config: Config, theme: Theme, recent_titles: set[str]) -> str:
     payload = {
-        "model": config.openai_model,
+        "model": config.deepseek_model,
         "input": build_prompt(theme, recent_titles),
     }
     request = urllib.request.Request(
-        "https://api.openai.com/v1/responses",
+        "https://api.deepseek.com/chat/completions",
         data=json.dumps(payload).encode("utf-8"),
         headers={
-            "Authorization": f"Bearer {config.openai_api_key}",
+            "Authorization": f"Bearer {config.deepseek_api_key}",
             "Content-Type": "application/json",
         },
         method="POST",
@@ -531,10 +531,10 @@ def generate_card(config: Config, theme: Theme, recent_titles: set[str]) -> str:
     with urllib.request.urlopen(request, timeout=90) as response:
         data = json.loads(response.read().decode("utf-8"))
 
-    output_text = data.get("output_text", "").strip()
-    if not output_text:
-        raise RuntimeError("OpenAI response did not include output_text")
-    return output_text
+    choices[0].message.content = data.get("choices[0].message.content", "").strip()
+    if not choices[0].message.content:
+        raise RuntimeError("DeepSeek response did not include message content")
+    return choices[0].message.content
 ```
 
 - [ ] **Step 2: 手动验证 prompt**
@@ -706,8 +706,8 @@ Create `README.md`:
 复制 `.env.example` 中的变量名，在系统环境变量中配置真实值：
 
 ```text
-OPENAI_API_KEY=你的 OpenAI API Key
-OPENAI_MODEL=gpt-5
+DEEPSEEK_API_KEY=你的 DeepSeek API Key
+DEEPSEEK_MODEL=deepseek-chat
 PUSHPLUS_TOKEN=pushplus webhook
 FLOMO_WEBHOOK_URL=flomo webhook
 COGNITIVE_PUSH_STATE=data/state.json
@@ -770,7 +770,7 @@ Run:
 Get-ChildItem -Recurse -File | Select-String -Pattern 'sk-[A-Za-z0-9_-]{20,}'
 ```
 
-Expected: 不出现真实 OpenAI Key。
+Expected: 不出现真实 DeepSeek Key。
 
 - [ ] **Step 3: 用真实环境变量做一次手动发送**
 

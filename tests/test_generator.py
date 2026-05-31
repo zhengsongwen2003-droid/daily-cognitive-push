@@ -15,7 +15,7 @@ class _FakeResponse:
         return False
 
     def read(self):
-        return json.dumps({"output_text": "#每日认知/测试\n\n标题：测试标题"}).encode("utf-8")
+        return json.dumps({"choices": [{"message": {"content": "#每日认知/测试\n\n标题：测试标题"}}]}).encode("utf-8")
 
 
 class GeneratorTests(TestCase):
@@ -28,8 +28,8 @@ class GeneratorTests(TestCase):
 
     def test_generate_card_returns_output_text(self):
         config = Config(
-            openai_api_key="key",
-            openai_model="model",
+            deepseek_api_key="key",
+            deepseek_model="deepseek-chat",
             pushplus_token="https://pushplus-token",
             flomo_webhook_url="https://flomo.example",
             state_path="state.json",
@@ -41,3 +41,29 @@ class GeneratorTests(TestCase):
             card = generate_card(config, theme, set())
 
         self.assertEqual(card, "#每日认知/测试\n\n标题：测试标题")
+
+    def test_generate_card_calls_deepseek_chat_completions(self):
+        captured = {}
+        config = Config(
+            deepseek_api_key="key",
+            deepseek_model="deepseek-chat",
+            pushplus_token="pushplus-token",
+            flomo_webhook_url="https://flomo.example",
+            state_path="state.json",
+            send_hour=8,
+        )
+        theme = Theme("决策偏误", "训练误判。", ("沉没成本",))
+
+        def fake_urlopen(request, timeout):
+            captured["url"] = request.full_url
+            captured["body"] = json.loads(request.data.decode("utf-8"))
+            captured["auth"] = request.headers["Authorization"]
+            return _FakeResponse()
+
+        with patch("urllib.request.urlopen", side_effect=fake_urlopen):
+            generate_card(config, theme, set())
+
+        self.assertEqual(captured["url"], "https://api.deepseek.com/chat/completions")
+        self.assertEqual(captured["body"]["model"], "deepseek-chat")
+        self.assertEqual(captured["body"]["messages"][0]["role"], "user")
+        self.assertEqual(captured["auth"], "Bearer key")

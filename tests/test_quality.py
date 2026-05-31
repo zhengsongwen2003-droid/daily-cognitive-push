@@ -75,3 +75,23 @@ class QualityTests(TestCase):
         result = validate_card(card, recent_titles=set(), recent_themes=set())
         self.assertIs(result.ok, False)
         self.assertTrue(any("章节顺序或数量不正确" in error for error in result.errors))
+
+    def test_bold_markdown_section_headers_are_accepted(self):
+        card = VALID_CARD
+        for section in ("1. 案例", "2. 关键转折", "3. 认知模型", "4. 常见误判", "5. 迁移到你", "6. 今日一问", "7. 微行动"):
+            card = card.replace(section, f"**{section}**")
+
+        result = validate_card(card, recent_titles=set(), recent_themes=set())
+
+        self.assertIs(result.ok, True)
+
+    def test_bold_section_names_after_number_are_accepted(self):
+        card = VALID_CARD.replace("标题：为什么聪明人也会拖着错误决定不放？", "**标题：为什么聪明人也会拖着错误决定不放？**")
+        for section in ("1. 案例", "2. 关键转折", "3. 认知模型", "4. 常见误判", "5. 迁移到你", "6. 今日一问", "7. 微行动"):
+            number, name = section.split(". ", 1)
+            card = card.replace(section, f"{number}. **{name}**")
+        card = card.replace("10 分钟", "10分钟")
+
+        result = validate_card(card, recent_titles=set(), recent_themes=set())
+
+        self.assertIs(result.ok, True)

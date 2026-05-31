@@ -1,28 +1,31 @@
 # 每日认知卡片
 
-这个项目现在包含两部分：
+这个项目包含：
 
-- Python 后端：每天生成认知判断力训练卡片，提供 iOS App API，并可通过 APNs 推送到手机。
-- SwiftUI iOS 源码骨架：展示今日卡片、保存回答和微行动、查看历史与周复盘。
+- Python 后端：生成每日认知判断力卡片，提供 iOS App API，并通过 APNs 推送到手机。
+- SwiftUI iOS 源码骨架：今日卡片、回答保存、微行动、历史和周复盘。
 
 ## 后端配置
 
 参考 `.env.example` 设置环境变量：
 
 ```text
-OPENAI_API_KEY=你的 OpenAI API Key
-OPENAI_MODEL=gpt-5
+DEEPSEEK_API_KEY=你的 DeepSeek API Key
+DEEPSEEK_MODEL=deepseek-chat
 COGNITIVE_PUSH_DATABASE=data/app.sqlite3
 COGNITIVE_PUSH_API_HOST=127.0.0.1
 COGNITIVE_PUSH_API_PORT=8080
 APNS_TEAM_ID=你的 Apple Team ID
 APNS_KEY_ID=你的 APNs Key ID
 APNS_BUNDLE_ID=com.example.dailycognition
-APNS_AUTH_TOKEN=你的 APNs provider token
+APNS_PRIVATE_KEY_PATH=secrets/AuthKey_你的KeyID.p8
+APNS_AUTH_TOKEN=
 APNS_ENVIRONMENT=sandbox
 ```
 
-pushplus 和 flomo 可以作为每日微信提醒与知识归档通道：
+推荐配置 `APNS_PRIVATE_KEY_PATH`，后端会用 `.p8` 私钥生成 APNs provider token。部署环境需要安装 Python `cryptography` 包。`APNS_AUTH_TOKEN` 只适合临时调试时手动传入已生成的 provider token。
+
+pushplus 和 flomo 仍可作为每日提醒与归档通道：
 
 ```text
 PUSHPLUS_TOKEN=pushplus token
@@ -53,14 +56,6 @@ python -m cognitive_push.main --send-ios-notification
 
 这个命令会生成或复用当天卡片，然后向已注册设备发送 APNs 通知。
 
-## 旧通道手动运行
-
-```powershell
-python -m cognitive_push.main --force
-```
-
-这个入口会把每日卡片发送到 pushplus，并同步保存到 flomo。
-
 ## iOS App
 
 SwiftUI 源码位于：
@@ -70,6 +65,13 @@ ios/DailyCognitionApp/Sources/DailyCognitionApp
 ```
 
 在 Xcode 中新建 iOS App 工程后，把这些 Swift 文件加入 app target，并在 `AppConfig.swift` 中设置后端 API 地址。
+
+真机推送需要：
+
+- Apple Developer 账号。
+- App target 开启 Push Notifications capability。
+- Bundle ID 与 `APNS_BUNDLE_ID` 一致。
+- 后端可访问 Apple APNs 服务。
 
 ## 测试
 

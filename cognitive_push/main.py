@@ -128,6 +128,7 @@ def run_ios_notification_once(today: date | None = None) -> None:
             key_id=app_config.apns_key_id,
             bundle_id=app_config.apns_bundle_id,
             auth_token=app_config.apns_auth_token,
+            private_key_path=app_config.apns_private_key_path,
             environment=app_config.apns_environment,
         )
     )

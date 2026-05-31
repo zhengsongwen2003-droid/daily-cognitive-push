@@ -63,8 +63,8 @@ class MainTests(TestCase):
         with tempfile.TemporaryDirectory() as directory:
             state_path = str(Path(directory) / "state.json")
             env = {
-                "OPENAI_API_KEY": "key",
-                "OPENAI_MODEL": "model",
+                "DEEPSEEK_API_KEY": "key",
+                "DEEPSEEK_MODEL": "model",
                 "PUSHPLUS_TOKEN": "https://pushplus-token",
                 "FLOMO_WEBHOOK_URL": "https://flomo.example",
                 "COGNITIVE_PUSH_STATE": state_path,
@@ -95,8 +95,8 @@ class MainTests(TestCase):
                 )
             )
             env = {
-                "OPENAI_API_KEY": "key",
-                "OPENAI_MODEL": "model",
+                "DEEPSEEK_API_KEY": "key",
+                "DEEPSEEK_MODEL": "model",
                 "PUSHPLUS_TOKEN": "https://pushplus-token",
                 "FLOMO_WEBHOOK_URL": "https://flomo.example",
                 "COGNITIVE_PUSH_STATE": state_path,
@@ -123,8 +123,8 @@ class MainTests(TestCase):
                 )
             )
             env = {
-                "OPENAI_API_KEY": "key",
-                "OPENAI_MODEL": "model",
+                "DEEPSEEK_API_KEY": "key",
+                "DEEPSEEK_MODEL": "model",
                 "PUSHPLUS_TOKEN": "https://pushplus-token",
                 "FLOMO_WEBHOOK_URL": "https://flomo.example",
                 "COGNITIVE_PUSH_STATE": state_path,
@@ -145,8 +145,8 @@ class MainTests(TestCase):
 
     def test_run_once_respects_configured_send_hour(self):
         env = {
-            "OPENAI_API_KEY": "key",
-            "OPENAI_MODEL": "model",
+            "DEEPSEEK_API_KEY": "key",
+            "DEEPSEEK_MODEL": "model",
             "PUSHPLUS_TOKEN": "https://pushplus-token",
             "FLOMO_WEBHOOK_URL": "https://flomo.example",
             "COGNITIVE_PUSH_SEND_HOUR": "9",
@@ -163,8 +163,8 @@ class MainTests(TestCase):
         with tempfile.TemporaryDirectory() as directory:
             state_path = str(Path(directory) / "state.json")
             env = {
-                "OPENAI_API_KEY": "key",
-                "OPENAI_MODEL": "model",
+                "DEEPSEEK_API_KEY": "key",
+                "DEEPSEEK_MODEL": "model",
                 "PUSHPLUS_TOKEN": "https://pushplus-token",
                 "FLOMO_WEBHOOK_URL": "https://flomo.example",
                 "COGNITIVE_PUSH_STATE": state_path,

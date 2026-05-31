@@ -6,8 +6,8 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class Config:
-    openai_api_key: str
-    openai_model: str
+    deepseek_api_key: str
+    deepseek_model: str
     pushplus_token: str
     flomo_webhook_url: str
     state_path: str
@@ -23,6 +23,7 @@ class AppConfig:
     apns_key_id: str
     apns_bundle_id: str
     apns_auth_token: str
+    apns_private_key_path: str
     apns_environment: str
 
 
@@ -39,8 +40,8 @@ def load_config() -> Config:
         raise RuntimeError("COGNITIVE_PUSH_SEND_HOUR must be between 0 and 23")
 
     return Config(
-        openai_api_key=_required_env("OPENAI_API_KEY"),
-        openai_model=os.environ.get("OPENAI_MODEL", "gpt-5").strip() or "gpt-5",
+        deepseek_api_key=_required_env("DEEPSEEK_API_KEY"),
+        deepseek_model=os.environ.get("DEEPSEEK_MODEL", "deepseek-chat").strip() or "deepseek-chat",
         pushplus_token=_required_env("PUSHPLUS_TOKEN"),
         flomo_webhook_url=_required_env("FLOMO_WEBHOOK_URL"),
         state_path=os.environ.get("COGNITIVE_PUSH_STATE", "data/state.json").strip() or "data/state.json",
@@ -61,6 +62,7 @@ def load_app_config() -> AppConfig:
         apns_key_id=os.environ.get("APNS_KEY_ID", "").strip(),
         apns_bundle_id=os.environ.get("APNS_BUNDLE_ID", "").strip(),
         apns_auth_token=os.environ.get("APNS_AUTH_TOKEN", "").strip(),
+        apns_private_key_path=os.environ.get("APNS_PRIVATE_KEY_PATH", "").strip(),
         apns_environment=os.environ.get("APNS_ENVIRONMENT", "sandbox").strip() or "sandbox",
     )
 
@@ -71,8 +73,8 @@ def load_generation_config() -> Config:
         raise RuntimeError("COGNITIVE_PUSH_SEND_HOUR must be between 0 and 23")
 
     return Config(
-        openai_api_key=_required_env("OPENAI_API_KEY"),
-        openai_model=os.environ.get("OPENAI_MODEL", "gpt-5").strip() or "gpt-5",
+        deepseek_api_key=_required_env("DEEPSEEK_API_KEY"),
+        deepseek_model=os.environ.get("DEEPSEEK_MODEL", "deepseek-chat").strip() or "deepseek-chat",
         pushplus_token=os.environ.get("PUSHPLUS_TOKEN", "").strip(),
         flomo_webhook_url=os.environ.get("FLOMO_WEBHOOK_URL", "").strip(),
         state_path=os.environ.get("COGNITIVE_PUSH_STATE", "data/state.json").strip() or "data/state.json",
