@@ -5,15 +5,10 @@ from datetime import date, datetime
 from time import sleep
 from typing import Callable, Sequence
 
-from cognitive_push.api import AppAPI, run_server
-from cognitive_push.apns import APNSClient, APNSConfig
-from cognitive_push.app_service import CognitiveAppService
-from cognitive_push.app_store import AppStore
 from cognitive_push.config import load_app_config, load_config, load_generation_config
 from cognitive_push.delivery import send_flomo, send_pushplus
 from cognitive_push.generator import generate_card
 from cognitive_push.quality import extract_tag_line, extract_title, validate_card
-from cognitive_push.scheduler import send_daily_card_notifications
 from cognitive_push.state import DailyRecord, StateStore
 from cognitive_push.themes import theme_for_date
 
@@ -102,7 +97,10 @@ def run_once(today: date | None = None, enforce_send_hour: bool = False, now: da
         raise RuntimeError("pushplus 和 flomo 均发送失败，内容已记录到本地状态")
 
 
-def _build_app_service() -> CognitiveAppService:
+def _build_app_service():
+    from cognitive_push.app_service import CognitiveAppService
+    from cognitive_push.app_store import AppStore
+
     app_config = load_app_config()
     push_config = load_generation_config()
 
@@ -115,11 +113,16 @@ def _build_app_service() -> CognitiveAppService:
 
 
 def serve_app_api() -> None:
+    from cognitive_push.api import AppAPI, run_server
+
     app_config = load_app_config()
     run_server(AppAPI(_build_app_service()), host=app_config.api_host, port=app_config.api_port)
 
 
 def run_ios_notification_once(today: date | None = None) -> None:
+    from cognitive_push.apns import APNSClient, APNSConfig
+    from cognitive_push.scheduler import send_daily_card_notifications
+
     app_config = load_app_config()
     service = _build_app_service()
     apns = APNSClient(
