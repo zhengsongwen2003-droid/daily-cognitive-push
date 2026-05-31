@@ -1,4 +1,4 @@
-import json
+﻿import json
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -30,7 +30,7 @@ class GeneratorTests(TestCase):
         config = Config(
             openai_api_key="key",
             openai_model="model",
-            wecom_webhook_url="https://wecom.example",
+            pushplus_token="https://pushplus-token",
             flomo_webhook_url="https://flomo.example",
             state_path="state.json",
             send_hour=8,

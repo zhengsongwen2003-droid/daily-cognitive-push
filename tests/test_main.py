@@ -1,4 +1,4 @@
-import os
+﻿import os
 import tempfile
 from datetime import date, datetime
 from pathlib import Path
@@ -47,25 +47,37 @@ class MainTests(TestCase):
 
         run_once_mock.assert_called_once_with(enforce_send_hour=False)
 
+    def test_main_serve_api_starts_app_api(self):
+        with patch("cognitive_push.main.serve_app_api") as serve_app_api:
+            main(["--serve-api"])
+
+        serve_app_api.assert_called_once()
+
+    def test_main_send_ios_notification_runs_scheduler(self):
+        with patch("cognitive_push.main.run_ios_notification_once") as run_ios_notification_once:
+            main(["--send-ios-notification"])
+
+        run_ios_notification_once.assert_called_once()
+
     def test_run_once_sends_and_records_card(self):
         with tempfile.TemporaryDirectory() as directory:
             state_path = str(Path(directory) / "state.json")
             env = {
                 "OPENAI_API_KEY": "key",
                 "OPENAI_MODEL": "model",
-                "WECOM_WEBHOOK_URL": "https://wecom.example",
+                "PUSHPLUS_TOKEN": "https://pushplus-token",
                 "FLOMO_WEBHOOK_URL": "https://flomo.example",
                 "COGNITIVE_PUSH_STATE": state_path,
             }
-            sent = {"wecom": 0, "flomo": 0}
+            sent = {"pushplus": 0, "flomo": 0}
 
             with patch.dict(os.environ, env, clear=True):
                 with patch("cognitive_push.main.generate_card", return_value=VALID_CARD):
-                    with patch("cognitive_push.main.send_wecom", side_effect=lambda url, content: sent.__setitem__("wecom", sent["wecom"] + 1)):
+                    with patch("cognitive_push.main.send_pushplus", side_effect=lambda url, content: sent.__setitem__("pushplus", sent["pushplus"] + 1)):
                         with patch("cognitive_push.main.send_flomo", side_effect=lambda url, content: sent.__setitem__("flomo", sent["flomo"] + 1)):
                             run_once(date(2026, 6, 1))
 
-            self.assertEqual(sent, {"wecom": 1, "flomo": 1})
+            self.assertEqual(sent, {"pushplus": 1, "flomo": 1})
             self.assertTrue(Path(state_path).exists())
 
     def test_run_once_skips_when_date_already_succeeded(self):
@@ -78,14 +90,14 @@ class MainTests(TestCase):
                     title="existing",
                     theme="#每日认知/认知偏差",
                     content=VALID_CARD,
-                    wecom_sent=True,
+                    pushplus_sent=True,
                     flomo_sent=True,
                 )
             )
             env = {
                 "OPENAI_API_KEY": "key",
                 "OPENAI_MODEL": "model",
-                "WECOM_WEBHOOK_URL": "https://wecom.example",
+                "PUSHPLUS_TOKEN": "https://pushplus-token",
                 "FLOMO_WEBHOOK_URL": "https://flomo.example",
                 "COGNITIVE_PUSH_STATE": state_path,
             }
@@ -106,36 +118,36 @@ class MainTests(TestCase):
                     title="existing",
                     theme="#每日认知/认知偏差",
                     content=VALID_CARD,
-                    wecom_sent=True,
+                    pushplus_sent=True,
                     flomo_sent=False,
                 )
             )
             env = {
                 "OPENAI_API_KEY": "key",
                 "OPENAI_MODEL": "model",
-                "WECOM_WEBHOOK_URL": "https://wecom.example",
+                "PUSHPLUS_TOKEN": "https://pushplus-token",
                 "FLOMO_WEBHOOK_URL": "https://flomo.example",
                 "COGNITIVE_PUSH_STATE": state_path,
             }
 
             with patch.dict(os.environ, env, clear=True):
                 with patch("cognitive_push.main.generate_card") as generate_card:
-                    with patch("cognitive_push.main.send_wecom") as send_wecom:
+                    with patch("cognitive_push.main.send_pushplus") as send_pushplus:
                         with patch("cognitive_push.main.send_flomo") as send_flomo:
                             run_once(date(2026, 6, 1))
 
             generate_card.assert_not_called()
-            send_wecom.assert_not_called()
+            send_pushplus.assert_not_called()
             send_flomo.assert_called_once()
             data = StateStore(state_path).load()
-            self.assertTrue(data["records"][-1]["wecom_sent"])
+            self.assertTrue(data["records"][-1]["pushplus_sent"])
             self.assertTrue(data["records"][-1]["flomo_sent"])
 
     def test_run_once_respects_configured_send_hour(self):
         env = {
             "OPENAI_API_KEY": "key",
             "OPENAI_MODEL": "model",
-            "WECOM_WEBHOOK_URL": "https://wecom.example",
+            "PUSHPLUS_TOKEN": "https://pushplus-token",
             "FLOMO_WEBHOOK_URL": "https://flomo.example",
             "COGNITIVE_PUSH_SEND_HOUR": "9",
         }
@@ -153,14 +165,14 @@ class MainTests(TestCase):
             env = {
                 "OPENAI_API_KEY": "key",
                 "OPENAI_MODEL": "model",
-                "WECOM_WEBHOOK_URL": "https://wecom.example",
+                "PUSHPLUS_TOKEN": "https://pushplus-token",
                 "FLOMO_WEBHOOK_URL": "https://flomo.example",
                 "COGNITIVE_PUSH_STATE": state_path,
             }
 
             with patch.dict(os.environ, env, clear=True):
                 with patch("cognitive_push.main.generate_card", return_value=VALID_CARD):
-                    with patch("cognitive_push.main.send_wecom", side_effect=RuntimeError("wecom failed")):
+                    with patch("cognitive_push.main.send_pushplus", side_effect=RuntimeError("pushplus failed")):
                         with patch("cognitive_push.main.send_flomo", side_effect=RuntimeError("flomo failed")):
                             with patch("cognitive_push.main.sleep"):
                                 with patch("builtins.print"):
@@ -169,5 +181,5 @@ class MainTests(TestCase):
 
             data = StateStore(state_path).load()
             self.assertEqual(data["records"][0]["content"], VALID_CARD)
-            self.assertFalse(data["records"][0]["wecom_sent"])
+            self.assertFalse(data["records"][0]["pushplus_sent"])
             self.assertFalse(data["records"][0]["flomo_sent"])

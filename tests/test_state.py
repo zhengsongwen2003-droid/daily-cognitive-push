@@ -1,4 +1,4 @@
-from unittest import TestCase
+﻿from unittest import TestCase
 
 from cognitive_push.state import DailyRecord, StateStore
 
@@ -27,7 +27,7 @@ class StateStoreTests(TestCase):
                         title=f"title-{index}",
                         theme=f"theme-{index}",
                         content=f"content-{index}",
-                        wecom_sent=True,
+                        pushplus_sent=True,
                         flomo_sent=True,
                     )
                 )
@@ -49,7 +49,7 @@ class StateStoreTests(TestCase):
                     title="title",
                     theme="#每日认知/认知偏差",
                     content="full card",
-                    wecom_sent=True,
+                    pushplus_sent=True,
                     flomo_sent=True,
                 )
             )
@@ -69,7 +69,7 @@ class StateStoreTests(TestCase):
                     title="old",
                     theme="#每日认知/认知偏差",
                     content="old card",
-                    wecom_sent=True,
+                    pushplus_sent=True,
                     flomo_sent=False,
                 )
             )
@@ -79,7 +79,7 @@ class StateStoreTests(TestCase):
                     title="new",
                     theme="#每日认知/认知偏差",
                     content="new card",
-                    wecom_sent=True,
+                    pushplus_sent=True,
                     flomo_sent=True,
                 )
             )

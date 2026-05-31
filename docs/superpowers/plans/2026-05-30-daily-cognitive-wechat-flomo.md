@@ -1,10 +1,10 @@
-# 每日认知微信 + flomo 推送系统 Implementation Plan
+﻿# 每日认知微信 + flomo 推送系统 Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 构建一个每天 08:00 自动生成 3-5 分钟认知案例、推送到企业微信机器人、并同步保存到 flomo 的最小可运行系统。
+**Goal:** 构建一个每天 08:00 自动生成 3-5 分钟认知案例、推送到pushplus、并同步保存到 flomo 的最小可运行系统。
 
-**Architecture:** 使用一个轻量 Python 命令行应用。配置从环境变量读取，状态写入本地 JSON 文件，主流程按“选择主题 -> 生成内容 -> 校验内容 -> 发送企业微信 -> 保存 flomo -> 记录状态”执行。
+**Architecture:** 使用一个轻量 Python 命令行应用。配置从环境变量读取，状态写入本地 JSON 文件，主流程按“选择主题 -> 生成内容 -> 校验内容 -> 发送pushplus -> 保存 flomo -> 记录状态”执行。
 
 **Tech Stack:** Python 3.11+、标准库 `urllib.request`、标准库 `json`、标准库 `unittest`、OpenAI Responses API、Windows 任务计划程序或等价 cron。
 
@@ -25,7 +25,7 @@
 - Create: `cognitive_push/quality.py`  
   检查 7 段结构、长度、标题重复度和关键字段。
 - Create: `cognitive_push/delivery.py`  
-  发送企业微信机器人和 flomo webhook。
+  发送pushplus和 flomo webhook。
 - Create: `cognitive_push/main.py`  
   编排完整每日流程。
 - Create: `tests/test_themes.py`  
@@ -42,7 +42,7 @@
 ## 参考资料
 
 - OpenAI Responses API：官方文档说明 Responses 是新项目推荐接口，并支持文本生成。
-- 企业微信机器人：使用机器人 webhook 接收 JSON 文本消息。
+- pushplus：使用机器人 webhook 接收 JSON 文本消息。
 - flomo：使用已获取的 flomo API 或 incoming webhook 地址保存内容。
 
 ## Task 1: 项目骨架和配置读取
@@ -86,7 +86,7 @@ from dataclasses import dataclass
 class Config:
     openai_api_key: str
     openai_model: str
-    wecom_webhook_url: str
+    pushplus_token: str
     flomo_webhook_url: str
     state_path: str
     send_hour: int
@@ -107,7 +107,7 @@ def load_config() -> Config:
     return Config(
         openai_api_key=_required_env("OPENAI_API_KEY"),
         openai_model=os.environ.get("OPENAI_MODEL", "gpt-5").strip() or "gpt-5",
-        wecom_webhook_url=_required_env("WECOM_WEBHOOK_URL"),
+        pushplus_token=_required_env("PUSHPLUS_TOKEN"),
         flomo_webhook_url=_required_env("FLOMO_WEBHOOK_URL"),
         state_path=os.environ.get("COGNITIVE_PUSH_STATE", "data/state.json").strip() or "data/state.json",
         send_hour=send_hour,
@@ -121,7 +121,7 @@ Create `.env.example`:
 ```text
 OPENAI_API_KEY=your-openai-api-key
 OPENAI_MODEL=gpt-5
-WECOM_WEBHOOK_URL=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=your-key
+PUSHPLUS_TOKEN=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=your-key
 FLOMO_WEBHOOK_URL=https://flomoapp.com/iwh/your-token
 COGNITIVE_PUSH_STATE=data/state.json
 COGNITIVE_PUSH_SEND_HOUR=8
@@ -242,7 +242,7 @@ def test_state_store_starts_empty(tmp_path):
 def test_state_store_keeps_last_30_records(tmp_path):
     store = StateStore(tmp_path / "state.json")
     for index in range(35):
-        store.add_record(DailyRecord(date=f"2026-06-{index + 1:02d}", title=f"title-{index}", theme=f"theme-{index}", wecom_sent=True, flomo_sent=True))
+        store.add_record(DailyRecord(date=f"2026-06-{index + 1:02d}", title=f"title-{index}", theme=f"theme-{index}", pushplus_sent=True, flomo_sent=True))
 
     data = store.load()
     assert len(data["records"]) == 30
@@ -278,7 +278,7 @@ class DailyRecord:
     date: str
     title: str
     theme: str
-    wecom_sent: bool
+    pushplus_sent: bool
     flomo_sent: bool
 
 
@@ -547,7 +547,7 @@ python -c "from datetime import date; from cognitive_push.themes import theme_fo
 
 Expected: 输出中文 prompt，包含“当天主题：决策偏误”和“旧标题”。
 
-## Task 6: 企业微信和 flomo 发送
+## Task 6: pushplus和 flomo 发送
 
 **Files:**
 - Create: `cognitive_push/delivery.py`
@@ -580,14 +580,14 @@ def _post_json(url: str, payload: dict[str, object], timeout: int = 30) -> dict[
         raise RuntimeError(f"HTTP {error.code}: {body}") from error
 
 
-def send_wecom(webhook_url: str, content: str) -> None:
+def send_pushplus(webhook_url: str, content: str) -> None:
     payload = {
         "msgtype": "markdown",
         "markdown": {"content": content},
     }
     result = _post_json(webhook_url, payload)
     if result.get("errcode", 0) != 0:
-        raise RuntimeError(f"WeCom send failed: {result}")
+        raise RuntimeError(f"pushplus send failed: {result}")
 
 
 def send_flomo(webhook_url: str, content: str) -> None:
@@ -600,7 +600,7 @@ def send_flomo(webhook_url: str, content: str) -> None:
 Run:
 
 ```powershell
-python -c "from cognitive_push.delivery import send_wecom, send_flomo; print('delivery import ok')"
+python -c "from cognitive_push.delivery import send_pushplus, send_flomo; print('delivery import ok')"
 ```
 
 Expected: 输出 `delivery import ok`。
@@ -621,7 +621,7 @@ from datetime import date
 from time import sleep
 
 from cognitive_push.config import load_config
-from cognitive_push.delivery import send_flomo, send_wecom
+from cognitive_push.delivery import send_flomo, send_pushplus
 from cognitive_push.generator import generate_card
 from cognitive_push.quality import extract_tag_line, extract_title, validate_card
 from cognitive_push.state import DailyRecord, StateStore
@@ -656,7 +656,7 @@ def run_once(today: date | None = None) -> None:
     if not quality.ok:
         raise RuntimeError("内容质量检查失败: " + "; ".join(quality.errors))
 
-    wecom_sent = _retry(lambda: send_wecom(config.wecom_webhook_url, card), attempts=3)
+    pushplus_sent = _retry(lambda: send_pushplus(config.pushplus_token, card), attempts=3)
     flomo_sent = _retry(lambda: send_flomo(config.flomo_webhook_url, card), attempts=3)
 
     store.add_record(
@@ -664,13 +664,13 @@ def run_once(today: date | None = None) -> None:
             date=current_day.isoformat(),
             title=extract_title(card),
             theme=extract_tag_line(card),
-            wecom_sent=wecom_sent,
+            pushplus_sent=pushplus_sent,
             flomo_sent=flomo_sent,
         )
     )
 
-    if not wecom_sent and not flomo_sent:
-        raise RuntimeError("企业微信和 flomo 均发送失败，内容已记录到本地状态")
+    if not pushplus_sent and not flomo_sent:
+        raise RuntimeError("pushplus和 flomo 均发送失败，内容已记录到本地状态")
 
 
 if __name__ == "__main__":
@@ -699,7 +699,7 @@ Create `README.md`:
 ```markdown
 # 每日认知微信 + flomo 推送系统
 
-这个项目每天生成一篇 3-5 分钟的认知案例卡片，推送到企业微信机器人，并同步保存到 flomo。
+这个项目每天生成一篇 3-5 分钟的认知案例卡片，推送到pushplus，并同步保存到 flomo。
 
 ## 配置
 
@@ -708,7 +708,7 @@ Create `README.md`:
 ```text
 OPENAI_API_KEY=你的 OpenAI API Key
 OPENAI_MODEL=gpt-5
-WECOM_WEBHOOK_URL=企业微信机器人 webhook
+PUSHPLUS_TOKEN=pushplus webhook
 FLOMO_WEBHOOK_URL=flomo webhook
 COGNITIVE_PUSH_STATE=data/state.json
 COGNITIVE_PUSH_SEND_HOUR=8
@@ -780,7 +780,7 @@ Run:
 python -m cognitive_push.main
 ```
 
-Expected: 企业微信收到一篇认知卡片，flomo 中出现同一条内容，`data/state.json` 记录当天标题、主题标签和发送状态。
+Expected: pushplus收到一篇认知卡片，flomo 中出现同一条内容，`data/state.json` 记录当天标题、主题标签和发送状态。
 
 - [ ] **Step 4: 提交变更**
 
@@ -795,6 +795,6 @@ Expected: 创建一个提交。如果当前机器没有安装 Git，则跳过提
 
 ## 自检结果
 
-- 设计要求已覆盖：企业微信机器人、08:00、通用知识生成、flomo webhook、30 天标题去重、失败重试、周日复盘主题。
+- 设计要求已覆盖：pushplus、08:00、通用知识生成、flomo webhook、30 天标题去重、失败重试、周日复盘主题。
 - 没有保留待补充占位符。
-- 类型和函数名在任务之间保持一致：`Config`、`Theme`、`StateStore`、`DailyRecord`、`validate_card`、`generate_card`、`send_wecom`、`send_flomo`、`run_once`。
+- 类型和函数名在任务之间保持一致：`Config`、`Theme`、`StateStore`、`DailyRecord`、`validate_card`、`generate_card`、`send_pushplus`、`send_flomo`、`run_once`。

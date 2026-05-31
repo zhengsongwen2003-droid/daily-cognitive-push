@@ -12,7 +12,7 @@ class DailyRecord:
     title: str
     theme: str
     content: str
-    wecom_sent: bool
+    pushplus_sent: bool
     flomo_sent: bool
 
 
@@ -45,7 +45,9 @@ class StateStore:
 
     def has_successful_record_for_date(self, date_value: str) -> bool:
         return any(
-            item.get("date") == date_value and item.get("wecom_sent") is True and item.get("flomo_sent") is True
+            item.get("date") == date_value
+            and item.get("pushplus_sent", item.get("wecom_sent")) is True
+            and item.get("flomo_sent") is True
             for item in self.load().get("records", [])
         )
 

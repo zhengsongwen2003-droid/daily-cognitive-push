@@ -1,53 +1,77 @@
-# 每日认知微信 + flomo 推送系统
+# 每日认知卡片
 
-这个项目每天生成一篇 3-5 分钟的认知案例卡片，推送到企业微信机器人，并同步保存到 flomo。
+这个项目现在包含两部分：
 
-## 配置
+- Python 后端：每天生成认知判断力训练卡片，提供 iOS App API，并可通过 APNs 推送到手机。
+- SwiftUI iOS 源码骨架：展示今日卡片、保存回答和微行动、查看历史与周复盘。
 
-参考 `.env.example` 中的变量名，在系统环境变量中配置真实值：
+## 后端配置
+
+参考 `.env.example` 设置环境变量：
 
 ```text
 OPENAI_API_KEY=你的 OpenAI API Key
 OPENAI_MODEL=gpt-5
-WECOM_WEBHOOK_URL=企业微信机器人 webhook
+COGNITIVE_PUSH_DATABASE=data/app.sqlite3
+COGNITIVE_PUSH_API_HOST=127.0.0.1
+COGNITIVE_PUSH_API_PORT=8080
+APNS_TEAM_ID=你的 Apple Team ID
+APNS_KEY_ID=你的 APNs Key ID
+APNS_BUNDLE_ID=com.example.dailycognition
+APNS_AUTH_TOKEN=你的 APNs provider token
+APNS_ENVIRONMENT=sandbox
+```
+
+pushplus 和 flomo 可以作为每日微信提醒与知识归档通道：
+
+```text
+PUSHPLUS_TOKEN=pushplus token
 FLOMO_WEBHOOK_URL=flomo webhook
 COGNITIVE_PUSH_STATE=data/state.json
 COGNITIVE_PUSH_SEND_HOUR=8
 ```
 
-## 手动运行
+## 运行后端 API
 
 ```powershell
-python -m cognitive_push.main
+python -m cognitive_push.main --serve-api
 ```
 
-这个命令会检查当前小时是否等于 `COGNITIVE_PUSH_SEND_HOUR`。如果想立刻试发一次，可以使用：
+API:
+
+- `POST /devices` 注册 iOS APNs device token。
+- `GET /cards/today` 获取今日卡片。
+- `POST /cards/{card_id}/reflection` 保存今日回答和微行动状态。
+- `GET /cards/history` 获取历史卡片。
+- `GET /reviews/current-week` 获取本周复盘。
+
+## 发送 iOS 推送
+
+```powershell
+python -m cognitive_push.main --send-ios-notification
+```
+
+这个命令会生成或复用当天卡片，然后向已注册设备发送 APNs 通知。
+
+## 旧通道手动运行
 
 ```powershell
 python -m cognitive_push.main --force
 ```
 
-## Windows 每天 08:00 定时运行
+这个入口会把每日卡片发送到 pushplus，并同步保存到 flomo。
 
-在任务计划程序中创建基本任务：
+## iOS App
+
+SwiftUI 源码位于：
 
 ```text
-触发器：每天 08:00
-操作：启动程序
-程序：python
-参数：-m cognitive_push.main
-起始于：项目所在目录
+ios/DailyCognitionApp/Sources/DailyCognitionApp
 ```
 
-## 内容规则
-
-每条内容包含：案例、关键转折、认知模型、常见误判、迁移到你、今日一问、微行动。
-
-系统会保存最近 30 天记录，避免重复标题。企业微信或 flomo 发送失败时会重试，两个入口都失败时会保留本地记录，避免当天内容丢失。
+在 Xcode 中新建 iOS App 工程后，把这些 Swift 文件加入 app target，并在 `AppConfig.swift` 中设置后端 API 地址。
 
 ## 测试
-
-本项目使用 Python 标准库 `unittest`，不需要额外安装测试框架：
 
 ```powershell
 python -m unittest discover -v

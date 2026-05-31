@@ -21,14 +21,16 @@ def _post_json(url: str, payload: dict[str, object], timeout: int = 30) -> dict[
         raise RuntimeError(f"HTTP {error.code}: {body}") from error
 
 
-def send_wecom(webhook_url: str, content: str) -> None:
+def send_pushplus(token: str, content: str) -> None:
     payload = {
-        "msgtype": "markdown",
-        "markdown": {"content": content},
+        "token": token,
+        "title": "每日认知",
+        "content": content,
+        "template": "markdown",
     }
-    result = _post_json(webhook_url, payload)
-    if result.get("errcode", 0) != 0:
-        raise RuntimeError(f"WeCom send failed: {result}")
+    result = _post_json("https://www.pushplus.plus/send", payload)
+    if result.get("code", 200) != 200:
+        raise RuntimeError(f"pushplus send failed: {result}")
 
 
 def send_flomo(webhook_url: str, content: str) -> None:
