@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f1e8">
+    <title>每日认知卡片</title>
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="topbar" aria-label="应用概览">
+        <div>
+          <p class="kicker">每日认知</p>
+          <h1>今天练一个判断力模型</h1>
+        </div>
+        <div class="streak" aria-label="连续完成天数">
+          <span id="streakDays">0</span>
+          <small>连续</small>
+        </div>
+      </section>
+
+      <nav class="tabs" aria-label="视图切换">
+        <button class="tab is-active" type="button" data-view="today">今日</button>
+        <button class="tab" type="button" data-view="review">复盘</button>
+        <button class="tab" type="button" data-view="history">历史</button>
+      </nav>
+
+      <section class="view is-active" id="todayView">
+        <article class="card lesson-card">
+          <div class="card-head">
+            <div>
+              <p class="date-line" id="todayDate"></p>
+              <h2 id="cardTitle"></h2>
+            </div>
+            <span class="time-chip">3-5 分钟</span>
+          </div>
+
+          <div class="theme-strip" id="themeStrip"></div>
+
+          <div class="lesson-section">
+            <h3>案例</h3>
+            <p id="caseText"></p>
+          </div>
+
+          <div class="lesson-grid">
+            <div class="panel">
+              <h3>认知模型</h3>
+              <p id="modelText"></p>
+            </div>
+            <div class="panel">
+              <h3>常见误判</h3>
+              <p id="mistakeText"></p>
+            </div>
+          </div>
+
+          <div class="question-box">
+            <span>今日一问</span>
+            <p id="questionText"></p>
+          </div>
+
+          <label class="reflection-label" for="reflectionInput">我的回答</label>
+          <textarea id="reflectionInput" rows="5" placeholder="写下一个真实处境，越具体越有用。"></textarea>
+
+          <div class="action-row">
+            <button class="icon-button secondary" type="button" id="prevCard" title="上一张">‹</button>
+            <button class="primary-button" type="button" id="saveReflection">保存今日记录</button>
+            <button class="icon-button secondary" type="button" id="nextCard" title="下一张">›</button>
+          </div>
+        </article>
+
+        <aside class="card action-card">
+          <h2>10 分钟微行动</h2>
+          <p id="actionText"></p>
+          <button class="secondary-button" type="button" id="completeAction">标记完成</button>
+        </aside>
+      </section>
+
+      <section class="view" id="reviewView">
+        <article class="card">
+          <div class="card-head">
+            <div>
+              <p class="date-line">本周复盘</p>
+              <h2>把学过的模型用回生活里</h2>
+            </div>
+            <span class="time-chip" id="doneCount">0 次</span>
+          </div>
+          <div class="review-grid" id="reviewGrid"></div>
+        </article>
+      </section>
+
+      <section class="view" id="historyView">
+        <article class="card">
+          <div class="card-head">
+            <div>
+              <p class="date-line">历史记录</p>
+              <h2>你的判断力训练轨迹</h2>
+            </div>
+            <button class="secondary-button compact" type="button" id="clearHistory">清空</button>
+          </div>
+          <div class="history-list" id="historyList"></div>
+        </article>
+      </section>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./app.js"></script>
+  </body>
+</html>
