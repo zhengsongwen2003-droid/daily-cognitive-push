@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f5f1e8">
-    <title>每日认知卡片</title>
+    <title>每日认知训练</title>
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="stylesheet" href="./styles.css">
   </head>
@@ -13,7 +13,7 @@
       <section class="topbar" aria-label="应用概览">
         <div>
           <p class="kicker">每日认知</p>
-          <h1>今天练一个判断力模型</h1>
+          <h1>用案例故事看懂人情与博弈</h1>
         </div>
         <div class="streak" aria-label="连续完成天数">
           <span id="streakDays">0</span>
@@ -34,26 +34,31 @@
               <p class="date-line" id="todayDate"></p>
               <h2 id="cardTitle"></h2>
             </div>
-            <span class="time-chip">3-5 分钟</span>
+            <span class="time-chip">5 分钟</span>
           </div>
 
           <div class="theme-strip" id="themeStrip"></div>
 
-          <div class="lesson-section">
-            <h3>案例故事</h3>
-            <p id="caseText"></p>
-          </div>
+          <section class="lesson-section">
+            <h3>案例情景</h3>
+            <div class="story-copy" id="caseText"></div>
+          </section>
 
-          <div class="lesson-grid">
-            <div class="panel">
-              <h3>认知模型</h3>
-              <p id="modelText"></p>
+          <section class="analysis-section">
+            <div class="section-title">
+              <span>认知拆解</span>
+              <strong>领导眼中的利益坐标系</strong>
             </div>
-            <div class="panel">
-              <h3>常见误判</h3>
-              <p id="mistakeText"></p>
+            <div class="analysis-list" id="analysisList"></div>
+          </section>
+
+          <section class="insight-section">
+            <div class="section-title">
+              <span>核心认知提升</span>
+              <strong>把道德情绪换成局势判断</strong>
             </div>
-          </div>
+            <div class="insight-list" id="insightList"></div>
+          </section>
 
           <div class="question-box">
             <span>今日一问</span>
@@ -61,12 +66,12 @@
           </div>
 
           <label class="reflection-label" for="reflectionInput">我的回答</label>
-          <textarea id="reflectionInput" rows="5" placeholder="写下一个真实处境，越具体越有用。"></textarea>
+          <textarea id="reflectionInput" rows="5" placeholder="写下一个真实处境：谁在场、谁有资源、谁承担成本、谁获得收益。"></textarea>
 
           <div class="action-row">
-            <button class="icon-button secondary" type="button" id="prevCard" title="上一张">‹</button>
+            <button class="icon-button secondary" type="button" id="prevCard" title="上一期">‹</button>
             <button class="primary-button" type="button" id="saveReflection">保存今日记录</button>
-            <button class="icon-button secondary" type="button" id="nextCard" title="下一张">›</button>
+            <button class="icon-button secondary" type="button" id="nextCard" title="下一期">›</button>
           </div>
         </article>
 
@@ -82,7 +87,7 @@
           <div class="card-head">
             <div>
               <p class="date-line">本周复盘</p>
-              <h2>把学过的模型用回生活里</h2>
+              <h2>把学过的局势判断用回生活里</h2>
             </div>
             <span class="time-chip" id="doneCount">0 次</span>
           </div>
@@ -95,7 +100,7 @@
           <div class="card-head">
             <div>
               <p class="date-line">历史记录</p>
-              <h2>你的判断力训练轨迹</h2>
+              <h2>你的认知训练轨迹</h2>
             </div>
             <button class="secondary-button compact" type="button" id="clearHistory">清空</button>
           </div>
