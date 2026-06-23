@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>两人出行｜广州+澳门 人均1000方案对比</title>
+  <style>
+    :root {
+      --ink: #1f2933;
+      --muted: #64748b;
+      --line: #d9e2ec;
+      --paper: #ffffff;
+      --wash: #f6f8fb;
+      --green: #147d64;
+      --blue: #1f6fb2;
+      --orange: #b76116;
+      --red: #b91c1c;
+      --shadow: 0 16px 40px rgba(31, 41, 51, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      color: var(--ink);
+      background: #edf2f7;
+      line-height: 1.65;
+    }
+
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 28px 18px 48px;
+    }
+
+    header {
+      color: #fff;
+      background: linear-gradient(135deg, #14506d, #19735f);
+      border-radius: 8px;
+      padding: 34px 28px;
+      box-shadow: var(--shadow);
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: clamp(28px, 4vw, 44px);
+    }
+
+    h2 {
+      margin-bottom: 16px;
+      font-size: 24px;
+    }
+
+    h3 {
+      margin-bottom: 8px;
+      font-size: 18px;
+    }
+
+    p {
+      margin: 0 0 10px;
+    }
+
+    .subtitle {
+      max-width: 780px;
+      margin-top: 12px;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 17px;
+    }
+
+    .hero-grid,
+    .grid-2,
+    .grid-3 {
+      display: grid;
+      gap: 14px;
+    }
+
+    .hero-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-top: 24px;
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .metric {
+      min-height: 96px;
+      padding: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .metric span {
+      display: block;
+      color: rgba(255, 255, 255, 0.76);
+      font-size: 13px;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 22px;
+    }
+
+    section {
+      margin-top: 18px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: 0 8px 22px rgba(31, 41, 51, 0.06);
+    }
+
+    .panel {
+      height: 100%;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--wash);
+    }
+
+    .winner {
+      border-color: rgba(20, 125, 100, 0.45);
+      background: #effaf6;
+    }
+
+    .risk {
+      border-color: rgba(185, 28, 28, 0.25);
+      background: #fff5f5;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      margin: 0 8px 8px 0;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: #e6f4ef;
+      color: #0f6c55;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag.blue {
+      background: #e8f2fb;
+      color: #175f99;
+    }
+
+    .tag.warn {
+      background: #fff1df;
+      color: #944d0b;
+    }
+
+    .tag.bad {
+      background: #fee2e2;
+      color: var(--red);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #edf4f8;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .sum {
+      color: var(--green);
+      font-weight: 800;
+    }
+
+    .over {
+      color: var(--red);
+      font-weight: 800;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 12px;
+    }
+
+    .stop {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 14px;
+      padding: 14px;
+      border-left: 4px solid var(--blue);
+      border-radius: 8px;
+      background: var(--wash);
+    }
+
+    .day {
+      color: var(--blue);
+      font-weight: 900;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    label.task {
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 4px;
+      accent-color: var(--green);
+    }
+
+    .task strong {
+      display: block;
+    }
+
+    .task small {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .note {
+      padding: 13px 14px;
+      border-left: 4px solid var(--orange);
+      border-radius: 8px;
+      background: #fff7ed;
+      color: #5c3715;
+    }
+
+    a {
+      color: var(--blue);
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    @media (max-width: 840px) {
+      main {
+        padding: 14px 10px 34px;
+      }
+
+      header, section {
+        padding: 20px;
+      }
+
+      .hero-grid,
+      .grid-2,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .stop {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      main {
+        max-width: none;
+        padding: 0;
+      }
+
+      header, section {
+        box-shadow: none;
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>两人出行：广州 + 澳门，人均1000怎么选</h1>
+      <p class="subtitle">结论很直接：只玩广州选两天一夜；想加澳门，建议三天两夜。两个人住宿能平摊，人均1000有机会压住，但澳门当天往返、不要住澳门。</p>
+      <div class="hero-grid">
+        <div class="metric"><span>人数</span><strong>2 人</strong></div>
+        <div class="metric"><span>预算</span><strong>人均 1000</strong></div>
+        <div class="metric"><span>推荐</span><strong>三天两夜</strong></div>
+        <div class="metric"><span>关键</span><strong>住珠海不住澳门</strong></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>先给结论</h2>
+      <div class="grid-2">
+        <div class="panel winner">
+          <span class="tag">推荐</span>
+          <h3>三天两夜：广州 1 晚 + 珠海 1 晚，澳门当天往返</h3>
+          <p>适合你们这种“两个人、人均1000、还想加澳门”的情况。时间更顺，住宿可平摊，澳门不住就能控制预算。</p>
+          <p><strong>体验：</strong>广州能玩到老城区和夜景，澳门能走经典路线，第三天珠海轻松收尾。</p>
+        </div>
+        <div class="panel risk">
+          <span class="tag bad">不推荐加澳门</span>
+          <h3>两天一夜：只适合惠州往返广州</h3>
+          <p>如果两天一夜还加澳门，路上和通关时间太重，广州只能浅逛，澳门也会变成赶路打卡。</p>
+          <p><strong>适合：</strong>只想省钱省心，不执着澳门。</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>两种方案对比</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>方案</th>
+            <th>路线</th>
+            <th>人均预算</th>
+            <th>优点</th>
+            <th>问题</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>两天一夜</strong></td>
+            <td>惠州 → 广州 → 惠州</td>
+            <td class="sum">600-900 元</td>
+            <td>最轻松，预算稳，住宿只住一晚。</td>
+            <td>不建议加澳门；加了会很赶。</td>
+          </tr>
+          <tr>
+            <td><strong>三天两夜</strong></td>
+            <td>惠州 → 广州 → 珠海/澳门 → 惠州</td>
+            <td class="sum">950-1250 元</td>
+            <td>广州和澳门都能玩到，两人平摊住宿更划算。</td>
+            <td>要严格控制酒店、打车和购物。</td>
+          </tr>
+          <tr>
+            <td><strong>两天一夜硬加澳门</strong></td>
+            <td>惠州 → 广州 → 澳门 → 惠州</td>
+            <td class="over">900-1300 元</td>
+            <td>景点数量看起来多。</td>
+            <td>赶路感很强，通关排队会影响体验。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>推荐行程：三天两夜</h2>
+      <div class="timeline">
+        <div class="stop">
+          <div class="day">Day 1</div>
+          <div>
+            <h3>惠州 → 广州：老城 + 夜景</h3>
+            <p>上午到广州，先去酒店寄存。路线：陈家祠 → 永庆坊 → 上下九/荔枝湾涌 → 沙面 → 花城广场/广州塔外景。</p>
+            <p><span class="tag blue">住广州</span><span class="tag">推荐北京路/长寿路/黄沙</span></p>
+          </div>
+        </div>
+        <div class="stop">
+          <div class="day">Day 2</div>
+          <div>
+            <h3>广州 → 珠海 → 澳门：经典澳门一日</h3>
+            <p>上午从广州南到珠海，拱北或青茂口岸过关。澳门路线：大三巴 → 议事亭前地 → 官也街 → 威尼斯人/伦敦人外观。晚上回珠海住拱北附近。</p>
+            <p><span class="tag blue">住珠海</span><span class="tag warn">不要住澳门</span><span class="tag">需港澳通行证+澳门签注</span></p>
+          </div>
+        </div>
+        <div class="stop">
+          <div class="day">Day 3</div>
+          <div>
+            <h3>珠海 → 惠州：轻松收尾</h3>
+            <p>上午走情侣路、日月贝、城市阳台。下午返程回惠州。不要把第三天排太满，给返程留余量。</p>
+            <p><span class="tag">轻松</span><span class="tag">适合拍照</span></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>住哪里最合适</h2>
+      <div class="grid-2">
+        <div class="panel winner">
+          <span class="tag blue">第1晚</span>
+          <h3>广州：住北京路 / 公园前 / 长寿路 / 黄沙</h3>
+          <p><strong>最推荐：</strong>长寿路或黄沙。去陈家祠、永庆坊、上下九、沙面都顺，晚上吃东西方便，第二天去广州南也不算绕。</p>
+          <p><strong>预算：</strong>经济型酒店 300-400 元/晚，两人平摊人均 150-200 元。</p>
+          <p><strong>下单关键词：</strong>近地铁、可寄存行李、独立卫浴、近两年装修、评分 4.5 以上。</p>
+        </div>
+        <div class="panel winner">
+          <span class="tag blue">第2晚</span>
+          <h3>珠海：住拱北口岸 / 青茂口岸 / 珠海站附近</h3>
+          <p><strong>最推荐：</strong>拱北口岸附近。早上或晚上过澳门都方便，回惠州也方便衔接珠海站。</p>
+          <p><strong>预算：</strong>经济型酒店 280-420 元/晚，两人平摊人均 140-210 元。</p>
+          <p><strong>避坑：</strong>不要为了便宜住太远，第二天拖着行李换乘会很累；也不建议住澳门，住宿会明显拉高预算。</p>
+        </div>
+      </div>
+      <p class="note">两个人出行的核心省钱点就是住宿平摊。把两晚总住宿控制在 600-800 元，人均1000就有机会守住。</p>
+    </section>
+
+    <section>
+      <h2>吃什么更划算</h2>
+      <div class="grid-3">
+        <div class="panel">
+          <span class="tag">广州 Day 1</span>
+          <h3>西关小吃线</h3>
+          <p><strong>午餐：</strong>艇仔粥、牛杂、肠粉、云吞面，放在永庆坊/上下九/长寿路一带解决。</p>
+          <p><strong>甜品：</strong>双皮奶、姜撞奶、椰子雪糕，适合两个人点 1-2 份分着吃。</p>
+          <p><strong>晚餐：</strong>北京路或公园前简餐，人均 40-70 元；不要第一晚就吃高价茶楼。</p>
+        </div>
+        <div class="panel">
+          <span class="tag">澳门 Day 2</span>
+          <h3>经典但控预算</h3>
+          <p><strong>老城区：</strong>葡挞、猪扒包、鱼蛋、牛杂、咖喱小吃，适合边走边吃。</p>
+          <p><strong>官也街：</strong>可以买一份葡挞或甜品打卡，伴手礼先看价格再买。</p>
+          <p><strong>晚餐：</strong>回珠海拱北吃更省，人均 40-70 元，比澳门正餐更容易控预算。</p>
+        </div>
+        <div class="panel">
+          <span class="tag">珠海 Day 3</span>
+          <h3>轻松早餐 + 海边简餐</h3>
+          <p><strong>早餐：</strong>拱北附近肠粉、粥粉面或便利店轻食，人均 15-30 元。</p>
+          <p><strong>午餐：</strong>情侣路/日月贝附近简餐，人均 40-70 元；景区海鲜大餐先不安排。</p>
+          <p><strong>返程前：</strong>买水和小零食即可，不要把预算花在临走前的冲动购物。</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>三天两夜吃住安排表</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>时间</th>
+            <th>住哪里</th>
+            <th>吃什么</th>
+            <th>人均参考</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Day 1 中午</td>
+            <td>先寄存广州酒店</td>
+            <td>永庆坊/上下九：艇仔粥、肠粉、云吞面、牛杂</td>
+            <td>40-70 元</td>
+          </tr>
+          <tr>
+            <td>Day 1 晚上</td>
+            <td>住广州长寿路/黄沙/北京路</td>
+            <td>北京路/公园前：煲仔饭、烧腊饭、茶餐厅简餐、甜品</td>
+            <td>50-90 元</td>
+          </tr>
+          <tr>
+            <td>Day 2 中午</td>
+            <td>行李带到珠海酒店寄存</td>
+            <td>澳门老城区：葡挞、猪扒包、鱼蛋、牛杂，少量多样</td>
+            <td>60-120 元</td>
+          </tr>
+          <tr>
+            <td>Day 2 晚上</td>
+            <td>住珠海拱北/青茂口岸附近</td>
+            <td>回珠海吃：粥粉面、烧烤、粤菜简餐或商场套餐</td>
+            <td>40-80 元</td>
+          </tr>
+          <tr>
+            <td>Day 3 上午/中午</td>
+            <td>珠海酒店退房寄存</td>
+            <td>拱北早餐 + 情侣路/日月贝附近简餐</td>
+            <td>60-100 元</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>人均1000预算拆分</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>项目</th>
+            <th>两人总预算</th>
+            <th>人均</th>
+            <th>控制方法</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>城际/高铁交通</td>
+            <td>500-700 元</td>
+            <td>250-350 元</td>
+            <td>提前买惠州→广州、广州→珠海、珠海→惠州；以 12306 实时票价为准。</td>
+          </tr>
+          <tr>
+            <td>住宿 2 晚</td>
+            <td>600-800 元</td>
+            <td>300-400 元</td>
+            <td>广州一晚 + 珠海拱北一晚；选经济型酒店，别住澳门。</td>
+          </tr>
+          <tr>
+            <td>吃饭小吃</td>
+            <td>600-800 元</td>
+            <td>300-400 元</td>
+            <td>广州吃小吃，澳门控制正餐，少买高价饮品甜品。</td>
+          </tr>
+          <tr>
+            <td>市内交通/通关后交通</td>
+            <td>180-300 元</td>
+            <td>90-150 元</td>
+            <td>广州地铁，澳门公交+步行，少打车。</td>
+          </tr>
+          <tr>
+            <td>门票/机动</td>
+            <td>120-240 元</td>
+            <td>60-120 元</td>
+            <td>不登广州塔，澳门景点多为外观免费，机动钱留给饮水和寄存。</td>
+          </tr>
+          <tr>
+            <td><strong>合计</strong></td>
+            <td class="sum">2000-2840 元</td>
+            <td class="sum">1000-1420 元</td>
+            <td>想卡在人均1000：住宿总额压到600以内，少打车，澳门少购物。</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note">人均1000不是完全不可能，但属于“要会控”的预算。最容易超支的是澳门餐饮、临时打车、酒店涨价和伴手礼。</p>
+    </section>
+
+    <section>
+      <h2>要提前做的事</h2>
+      <div class="grid-2">
+        <div class="panel">
+          <h3>证件和票</h3>
+          <div class="checklist">
+            <label class="task"><input type="checkbox"><span><strong>确认两个人都有港澳通行证</strong><small>必须是有效证件。</small></span></label>
+            <label class="task"><input type="checkbox"><span><strong>确认两个人都有有效澳门签注</strong><small>没有签注就不能按计划去澳门。</small></span></label>
+            <label class="task"><input type="checkbox"><span><strong>购买三段大交通</strong><small>惠州到广州、广州到珠海、珠海回惠州。</small></span></label>
+            <label class="task"><input type="checkbox"><span><strong>预约广东省博物馆</strong><small>如果 Day 1 或 Day 2 想加省博，提前实名预约。</small></span></label>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>住宿和预算</h3>
+          <div class="checklist">
+            <label class="task"><input type="checkbox"><span><strong>广州酒店控制在 300-400 元/晚</strong><small>两人平摊后人均150-200。</small></span></label>
+            <label class="task"><input type="checkbox"><span><strong>珠海拱北酒店控制在 300-400 元/晚</strong><small>离口岸近，第二天澳门和返程都方便。</small></span></label>
+            <label class="task"><input type="checkbox"><span><strong>每人准备 200 元机动现金/余额</strong><small>用于临时交通、饮水、寄存、口岸附近花费。</small></span></label>
+            <label class="task"><input type="checkbox"><span><strong>约定澳门购物上限</strong><small>人均1000预算下，伴手礼建议每人不超过100元。</small></span></label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>最终选择建议</h2>
+      <div class="grid-3">
+        <div class="panel">
+          <span class="tag">最稳</span>
+          <h3>只玩广州，两天一夜</h3>
+          <p>人均600-900，轻松、省心、预算稳。适合第一次去广州或不想赶路。</p>
+        </div>
+        <div class="panel winner">
+          <span class="tag">最平衡</span>
+          <h3>广州+澳门，三天两夜</h3>
+          <p>我最推荐这个。人均1000上下可以尝试，但要严格控住宿和澳门消费。</p>
+        </div>
+        <div class="panel risk">
+          <span class="tag bad">不建议</span>
+          <h3>广州+澳门，两天一夜</h3>
+          <p>看似省一天，实际体验被交通和通关切碎，不适合两个人好好玩。</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>查询入口</h2>
+      <p>车票：<a href="https://www.12306.cn/" target="_blank" rel="noreferrer">中国铁路12306</a></p>
+      <p>澳门出入境证件政策：<a href="https://www.nia.gov.cn/" target="_blank" rel="noreferrer">国家移民管理局</a></p>
+      <p>澳门旅游信息：<a href="https://www.macaotourism.gov.mo/zh-hans/" target="_blank" rel="noreferrer">澳门特别行政区政府旅游局</a></p>
+    </section>
+
+    <footer>
+      预算为两人同行估算，酒店和车票会随日期波动；出发前以订票平台和官方信息为准。
+    </footer>
+  </main>
+</body>
+</html>
